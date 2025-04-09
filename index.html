@@ -190,10 +190,30 @@
                 navigator.serviceWorker.register('/sw.js')
                     .then(registration => {
                         console.log('ServiceWorker registration successful');
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('Service worker update found!');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New content is available, show notification to user
+                                    if (confirm('New version available! Click OK to update.')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
                     })
                     .catch(err => {
                         console.log('ServiceWorker registration failed: ', err);
                     });
+                    
+                // Handle updates when the page is revisited
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('New service worker controller');
+                });
             });
         }
 

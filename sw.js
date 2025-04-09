@@ -1,4 +1,4 @@
-const CACHE_NAME = 'password-generator-v1';
+const CACHE_NAME = 'password-generator-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -38,6 +38,10 @@ self.addEventListener('activate', (event) => {
         keys.filter((key) => key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       );
+    }).then(() => {
+      console.log('New version activated');
+      // Take control of uncontrolled clients
+      return self.clients.claim();
     })
   );
 });
