@@ -1,5 +1,7 @@
 # Secure Password Generator
 
+![Secure Password Generator Logo](logo.png)
+
 A modern, responsive web application for generating secure passwords and passphrases with customizable options.
 
 ![Password Generator Screenshot](screenshot.png)
