@@ -55,10 +55,3 @@ This project is open source and available under the [MIT License](LICENSE).
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any improvements.
-
-## Screenshot
-
-To add a screenshot:
-1. Take a screenshot of the application
-2. Save it as `screenshot.png` in the project root
-3. The image will automatically appear in the README
