@@ -1,0 +1,28 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Hier kannst du Build-Schritte einfügen, wenn du sie benötigst
+      # - name: Install dependencies
+      #   run: npm ci
+      # - name: Build site
+      #   run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: .  # Anpassen falls nötig
+          # folder: dist  # Für Build-Prozesse
+          clean: true
+          token: ${{ secrets.DEPLOY_TOKEN }}  # Verwendet das Repository-Secret
