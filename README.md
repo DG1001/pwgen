@@ -1,6 +1,4 @@
-# Secure Password Generator
-
-<img src="logo.png" alt="Secure Password Generator Logo" width="192">
+# <img src="logo.png" alt="Secure Password Generator Logo" width="48"> Secure Password Generator
 
 A modern, responsive web application for generating secure passwords and passphrases with customizable options.
 
