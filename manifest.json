@@ -3,6 +3,7 @@
   "short_name": "PasswordGen",
   "description": "Generate secure passwords instantly",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f5f5f7",
   "theme_color": "#3b82f6",

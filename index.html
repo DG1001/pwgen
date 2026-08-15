@@ -7,53 +7,9 @@
     <meta name="description" content="Generate secure passwords instantly">
     <title>Secure Password Generator</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f5f5f7;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .ios-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.9) 100%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .password-display {
-            font-family: 'SF Mono', 'Menlo', monospace;
-        }
-        .slider-thumb::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        .slider-thumb::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
-            background: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        .toggle-checkbox:checked {
-            @apply bg-blue-500;
-            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
-            border-color: transparent;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/app.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="ios-card w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -62,37 +18,37 @@
             <h1 class="text-2xl font-semibold">Password Generator</h1>
             <p class="text-blue-100 text-sm mt-1">Create secure passwords instantly</p>
         </div>
-        
+
         <!-- Password Output -->
         <div class="p-5 border-b border-gray-100">
             <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 mb-2 border border-gray-200">
                 <div class="password-display text-lg font-medium overflow-x-auto whitespace-nowrap" id="password-output">Generate a password</div>
                 <button id="copy-btn" class="text-blue-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100">
-                    <i data-lucide="copy" class="w-5 h-5"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                 </button>
             </div>
             <div id="copy-feedback" class="text-sm text-green-600 h-5 text-center"></div>
         </div>
-        
+
         <!-- Generation Options -->
         <div class="p-5 space-y-5">
             <!-- Type Selector -->
             <div class="bg-gray-50 rounded-xl p-1">
                 <div class="grid grid-cols-2 gap-1 mb-1">
                     <button id="random-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 bg-white shadow-sm">
-                        <i data-lucide="dice-5" class="w-4 h-4"></i> Random
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/></svg> Random
                     </button>
                     <button id="syllable-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
-                        <i data-lucide="speech" class="w-4 h-4"></i> Syllable
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/></svg> Syllable
                     </button>
                 </div>
                 <div class="grid grid-cols-1">
                     <button id="passphrase-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
-                        <i data-lucide="list" class="w-4 h-4"></i> Passphrase
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg> Passphrase
                     </button>
                 </div>
             </div>
-            
+
             <!-- Random Password Settings -->
             <div id="random-settings" class="space-y-4">
                 <!-- Length Slider -->
@@ -103,14 +59,14 @@
                     </div>
                     <input type="range" id="length-slider" min="6" max="64" value="16" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
                 </div>
-                
+
                 <!-- Character Types -->
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Character Types</label>
                     <div class="grid grid-cols-2 gap-2">
                         <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                             <span class="text-gray-700">A-Z</span>
-                            <input type="checkbox" id="uppercase" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                            <input type="checkbox" id="uppercase" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent" checked>
                         </label>
                         <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                             <span class="text-gray-700">a-z</span>
@@ -127,7 +83,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Passphrase Settings (hidden initially) -->
             <div id="passphrase-settings" class="space-y-4 hidden">
                 <!-- Language -->
@@ -148,16 +104,16 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <!-- Word Count -->
                 <div>
                     <div class="flex justify-between items-center mb-2">
                         <label class="text-sm font-medium text-gray-700">Number of Words</label>
-                        <span class="text-sm font-medium text-gray-900" id="word-count-value">4</span>
+                        <span class="text-sm font-medium text-gray-900" id="word-count-value">6</span>
                     </div>
-                    <input type="range" id="word-count" min="3" max="10" value="4" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
+                    <input type="range" id="word-count" min="3" max="12" value="6" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
                 </div>
-                
+
                 <!-- Separator -->
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Word Separator</label>
@@ -168,96 +124,188 @@
                         <option value=".">Dot (.)</option>
                     </select>
                 </div>
-                
+
                 <!-- Add Number -->
                 <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <span class="text-gray-700">Add random number</span>
                     <input type="checkbox" id="add-number" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
                 </label>
             </div>
-            
+
             <!-- Generate Button -->
-            <button id="generate-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl transition-colors font-medium flex items-center justify-center gap-2 active:scale-95 transform transition-transform">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Generate Password
+            <button id="generate-btn" class="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 active:scale-95 transform transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Generate Password
             </button>
         </div>
     </div>
 
+    <!-- Update banner (hidden until a new service worker is waiting) -->
+    <div id="update-banner" class="hidden fixed inset-x-0 bottom-0 p-4 flex justify-center">
+        <div class="bg-gray-900 text-white text-sm rounded-xl shadow-lg px-4 py-3 flex items-center gap-4 max-w-md w-full">
+            <span class="flex-1">A new version is available.</span>
+            <button id="update-btn" class="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg font-medium transition-colors">Update</button>
+            <button id="update-dismiss" class="text-gray-400 hover:text-white transition-colors">Later</button>
+        </div>
+    </div>
+
     <script>
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                        
-                        // Check for updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            console.log('Service worker update found!');
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New content is available, show notification to user
-                                    if (confirm('New version available! Click OK to update.')) {
-                                        window.location.reload();
-                                    }
-                                }
-                            });
-                        });
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
+        'use strict';
+
+        /* ------------------------------------------------------------------
+         * Service worker registration + update flow
+         * ------------------------------------------------------------------ */
+        const updateBanner = document.getElementById('update-banner');
+        const updateBtn = document.getElementById('update-btn');
+        const updateDismiss = document.getElementById('update-dismiss');
+
+        function setupServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+
+            // Relative path: keeps the app working under a sub-path such as
+            // https://user.github.io/pwgen/ where '/sw.js' would 404.
+            navigator.serviceWorker.register('sw.js').then((registration) => {
+                let waitingWorker = registration.waiting || null;
+
+                function promptForUpdate(worker) {
+                    waitingWorker = worker;
+                    updateBanner.classList.remove('hidden');
+                }
+
+                // A worker may already be waiting from a previous visit.
+                if (registration.waiting && navigator.serviceWorker.controller) {
+                    promptForUpdate(registration.waiting);
+                }
+
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (!newWorker) return;
+                    newWorker.addEventListener('statechange', () => {
+                        // controller check: on a first-ever install there is
+                        // nothing to update *from*, so stay silent.
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            promptForUpdate(newWorker);
+                        }
                     });
-                    
-                // Handle updates when the page is revisited
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('New service worker controller');
                 });
+
+                updateBtn.addEventListener('click', () => {
+                    updateBanner.classList.add('hidden');
+                    // Without this the new worker stays in 'waiting' forever and
+                    // a plain reload would change nothing.
+                    if (waitingWorker) waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+                });
+
+                updateDismiss.addEventListener('click', () => {
+                    updateBanner.classList.add('hidden');
+                });
+            }).catch((err) => {
+                console.warn('ServiceWorker registration failed:', err);
+            });
+
+            // The new worker took over -> reload once to pick up the new assets.
+            let reloading = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (reloading) return;
+                reloading = true;
+                window.location.reload();
             });
         }
 
-        // Word lists for passphrase generation
-        const wordLists = {
-            english: [
-                'apple', 'banana', 'carrot', 'dog', 'elephant', 'forest', 'garden', 'house', 'island', 'jungle',
-                'kite', 'lion', 'mountain', 'night', 'ocean', 'pencil', 'queen', 'river', 'sun', 'tree',
-                'umbrella', 'violet', 'water', 'xylophone', 'yellow', 'zebra', 'air', 'book', 'cat', 'desk',
-                'earth', 'flower', 'grass', 'hat', 'ice', 'juice', 'key', 'lamp', 'mirror', 'nose',
-                'orange', 'pear', 'quilt', 'rose', 'shoe', 'table', 'unicorn', 'volcano', 'window', 'yacht',
-                'anchor', 'bottle', 'candle', 'dolphin', 'eagle', 'feather', 'globe', 'hammer', 'igloo', 'jacket',
-                'kitten', 'ladder', 'moon', 'nest', 'owl', 'piano', 'quail', 'rocket', 'snail', 'tiger',
-                'urchin', 'violin', 'whale', 'xylophone', 'yogurt', 'acorn', 'butterfly', 'cloud', 'diamond', 'egg',
-                'fire', 'guitar', 'honey', 'iceberg', 'jelly', 'koala', 'lemon', 'mushroom', 'nut', 'octopus',
-                'penguin', 'quokka', 'raccoon', 'star', 'turtle', 'vase', 'watermelon', 'xylophone', 'yarn', 'zeppelin'
-            ],
-            german: [
-                'apfel', 'banane', 'hund', 'elefant', 'wald', 'garten', 'haus', 'insel', 'dschungel', 'drachen',
-                'löwe', 'berg', 'nacht', 'ozean', 'stift', 'königin', 'fluss', 'sonne', 'baum', 'regenschirm',
-                'veilchen', 'wasser', 'xylophon', 'gelb', 'zebra', 'luft', 'buch', 'katze', 'schreibtisch', 'erde',
-                'blume', 'gras', 'hut', 'eis', 'saft', 'schlüssel', 'lampe', 'spiegel', 'nase', 'orange',
-                'birne', 'steppdecke', 'rose', 'schuh', 'tisch', 'einhorn', 'vulkan', 'fenster', 'yacht', 'anker',
-                'flasche', 'kerze', 'delfin', 'adler', 'feder', 'globus', 'hammer', 'iglu', 'jacke', 'kätzchen',
-                'leiter', 'mond', 'nest', 'eule', 'klavier', 'wachtel', 'rakete', 'schnecke', 'tiger', 'seeigel',
-                'geige', 'wal', 'xylophon', 'joghurt', 'eichel', 'schmetterling', 'wolke', 'diamant', 'ei', 'feuer',
-                'gitarre', 'honig', 'eisberg', 'gelee', 'koala', 'zitrone', 'pilz', 'nuss', 'oktopus', 'pinguin',
-                'quokka', 'waschbär', 'stern', 'schildkröte', 'vase', 'wassermelone', 'xylophon', 'garn', 'zeppelin'
-            ]
-        };
+        /* ------------------------------------------------------------------
+         * Cryptographically secure randomness
+         *
+         * Math.random() is a non-cryptographic PRNG whose internal state can be
+         * recovered from a handful of outputs - unusable for secrets.
+         * ------------------------------------------------------------------ */
+        const cryptoObj = window.crypto || window.msCrypto;
+        const hasSecureRandom = !!(cryptoObj && typeof cryptoObj.getRandomValues === 'function');
 
-        // Syllable patterns for syllable-based passwords
-        const syllablePatterns = [
-            'CV', 'VC', 'CVC', 'CV', 'VC', 'CVC', 'CV', 'VC'
-        ];
-        
-        // Common consonants and vowels
+        // Uniform integer in [0, max) via rejection sampling (no modulo bias).
+        function randomInt(max) {
+            if (!Number.isInteger(max) || max < 1 || max > 0x100000000) {
+                throw new RangeError('randomInt: max out of range');
+            }
+            const buf = new Uint32Array(1);
+            // Largest multiple of `max` that fits in a uint32; anything at or
+            // above it would over-represent the low values, so we resample.
+            const limit = Math.floor(0x100000000 / max) * max;
+            let value;
+            do {
+                cryptoObj.getRandomValues(buf);
+                value = buf[0];
+            } while (value >= limit);
+            return value % max;
+        }
+
+        function randomChar(chars) {
+            return chars.charAt(randomInt(chars.length));
+        }
+
+        function randomItem(list) {
+            return list[randomInt(list.length)];
+        }
+
+        // Fisher-Yates with a CSPRNG source.
+        function shuffleString(str) {
+            const array = str.split('');
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = randomInt(i + 1);
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array.join('');
+        }
+
+        /* ------------------------------------------------------------------
+         * Word lists (Diceware, 7776 words = 12.92 bits per word)
+         * ------------------------------------------------------------------ */
+        const WORDLIST_URLS = {
+            english: 'words/en.txt',
+            german: 'words/de.txt'
+        };
+        const wordListCache = {};
+
+        async function loadWordList(language) {
+            if (wordListCache[language]) return wordListCache[language];
+
+            const response = await fetch(WORDLIST_URLS[language]);
+            if (!response.ok) {
+                throw new Error('Could not load the word list');
+            }
+            const words = (await response.text())
+                .split('\n')
+                .map((word) => word.trim())
+                .filter(Boolean);
+
+            if (words.length < 1000) {
+                throw new Error('Word list looks incomplete');
+            }
+            wordListCache[language] = words;
+            return words;
+        }
+
+        /* ------------------------------------------------------------------
+         * Character pools
+         * ------------------------------------------------------------------ */
+        const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
+        const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const DIGITS = '0123456789';
+        const SYMBOLS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        const syllablePatterns = ['CV', 'VC', 'CVC', 'CV', 'VC', 'CVC', 'CV', 'VC'];
         const consonants = 'bcdfghjklmnpqrstvwxyz';
         const vowels = 'aeiou';
-        
-        // Symbols for password generation
-        const symbolList = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-        
-        // DOM elements
+
+        /* ------------------------------------------------------------------
+         * Icons (inline SVG - no runtime icon library, works offline)
+         * ------------------------------------------------------------------ */
+        const ICON_REFRESH = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>';
+        const ICON_LOADER = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+        const ICON_COPY = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+        const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+        /* ------------------------------------------------------------------
+         * DOM elements
+         * ------------------------------------------------------------------ */
         const passwordOutput = document.getElementById('password-output');
         const copyBtn = document.getElementById('copy-btn');
         const copyFeedback = document.getElementById('copy-feedback');
@@ -267,8 +315,7 @@
         const passphraseBtn = document.getElementById('passphrase-btn');
         const randomSettings = document.getElementById('random-settings');
         const passphraseSettings = document.getElementById('passphrase-settings');
-        
-        // Settings elements
+
         const lengthSlider = document.getElementById('length-slider');
         const lengthValue = document.getElementById('length-value');
         const uppercaseCheck = document.getElementById('uppercase');
@@ -280,223 +327,178 @@
         const separatorSelect = document.getElementById('separator');
         const addNumberCheck = document.getElementById('add-number');
         const languageRadios = document.querySelectorAll('input[name="language"]');
-        
-        // Current generation type
+
         let currentGenerationType = 'random';
-        
-        // Initialize event listeners
+
+        /* ------------------------------------------------------------------
+         * Mode switching
+         * ------------------------------------------------------------------ */
+        const modeButtons = {
+            random: randomBtn,
+            syllable: syllableBtn,
+            passphrase: passphraseBtn
+        };
+
+        function selectMode(mode) {
+            currentGenerationType = mode;
+
+            Object.keys(modeButtons).forEach((name) => {
+                const button = modeButtons[name];
+                if (name === mode) {
+                    button.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    button.classList.add('bg-white', 'shadow-sm');
+                } else {
+                    button.classList.remove('bg-white', 'shadow-sm');
+                    button.classList.add('text-gray-500', 'hover:text-gray-700');
+                }
+            });
+
+            randomSettings.classList.toggle('hidden', mode === 'passphrase');
+            passphraseSettings.classList.toggle('hidden', mode !== 'passphrase');
+        }
+
         function initEventListeners() {
-            // Slider value displays
             lengthSlider.addEventListener('input', () => {
                 lengthValue.textContent = lengthSlider.value;
             });
-            
+
             wordCountSlider.addEventListener('input', () => {
                 wordCountValue.textContent = wordCountSlider.value;
             });
-            
-            // Generation type buttons
-            randomBtn.addEventListener('click', () => {
-                currentGenerationType = 'random';
-                randomSettings.classList.remove('hidden');
-                passphraseSettings.classList.add('hidden');
-                randomBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                randomBtn.classList.add('bg-white', 'shadow-sm');
-                syllableBtn.classList.remove('bg-white', 'shadow-sm');
-                syllableBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-                passphraseBtn.classList.remove('bg-white', 'shadow-sm');
-                passphraseBtn.classList.add('text-gray-500', 'hover:text-gray-700');
+
+            Object.keys(modeButtons).forEach((mode) => {
+                modeButtons[mode].addEventListener('click', () => selectMode(mode));
             });
-            
-            syllableBtn.addEventListener('click', () => {
-                currentGenerationType = 'syllable';
-                randomSettings.classList.remove('hidden');
-                passphraseSettings.classList.add('hidden');
-                syllableBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                syllableBtn.classList.add('bg-white', 'shadow-sm');
-                randomBtn.classList.remove('bg-white', 'shadow-sm');
-                randomBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-                passphraseBtn.classList.remove('bg-white', 'shadow-sm');
-                passphraseBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-            });
-            
-            passphraseBtn.addEventListener('click', () => {
-                currentGenerationType = 'passphrase';
-                randomSettings.classList.add('hidden');
-                passphraseSettings.classList.remove('hidden');
-                passphraseBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                passphraseBtn.classList.add('bg-white', 'shadow-sm');
-                randomBtn.classList.remove('bg-white', 'shadow-sm');
-                randomBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-                syllableBtn.classList.remove('bg-white', 'shadow-sm');
-                syllableBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-            });
-            
-            // Generate button
+
             generateBtn.addEventListener('click', generatePassword);
-            
-            // Copy button
             copyBtn.addEventListener('click', copyToClipboard);
-            
-            // Set initial active button
-            randomBtn.click();
+
+            selectMode('random');
         }
-        
-        // Generate password based on current settings
-        function generatePassword() {
-            let password = '';
-            
-            // Add loading state to button
+
+        /* ------------------------------------------------------------------
+         * Generation
+         * ------------------------------------------------------------------ */
+        async function generatePassword() {
+            if (!hasSecureRandom) {
+                passwordOutput.textContent = 'Secure randomness unavailable in this browser';
+                return;
+            }
+
             generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating...';
-            
-            // Small delay to allow UI to update
-            setTimeout(() => {
-                try {
-                    switch(currentGenerationType) {
-                        case 'random':
-                            password = generateRandomPassword();
-                            break;
-                        case 'syllable':
-                            password = generateSyllablePassword();
-                            break;
-                        case 'passphrase':
-                            password = generatePassphrase();
-                            break;
-                        default:
-                            password = generateRandomPassword();
-                    }
-                    
-                    passwordOutput.textContent = password;
-                } catch (error) {
-                    passwordOutput.textContent = error.message;
-                    copyFeedback.textContent = '';
-                } finally {
-                    // Reset button state
-                    generateBtn.disabled = false;
-                    generateBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Generate Password';
+            generateBtn.innerHTML = ICON_LOADER + ' Generating...';
+
+            try {
+                let password;
+                switch (currentGenerationType) {
+                    case 'syllable':
+                        password = generateSyllablePassword();
+                        break;
+                    case 'passphrase':
+                        password = await generatePassphrase();
+                        break;
+                    default:
+                        password = generateRandomPassword();
                 }
-            }, 50);
+                passwordOutput.textContent = password;
+            } catch (error) {
+                passwordOutput.textContent = error.message;
+                copyFeedback.textContent = '';
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = ICON_REFRESH + ' Generate Password';
+            }
         }
-        
-        // Generate random password
+
         function generateRandomPassword() {
-            const length = parseInt(lengthSlider.value);
-            const useUppercase = uppercaseCheck.checked;
-            const useLowercase = lowercaseCheck.checked;
-            const useNumbers = numbersCheck.checked;
-            const useSymbols = symbolsCheck.checked;
-            
-            // Validate at least one character type is selected
-            if (!useUppercase && !useLowercase && !useNumbers && !useSymbols) {
+            const length = parseInt(lengthSlider.value, 10);
+
+            const selectedTypes = [
+                uppercaseCheck.checked ? UPPERCASE : '',
+                lowercaseCheck.checked ? LOWERCASE : '',
+                numbersCheck.checked ? DIGITS : '',
+                symbolsCheck.checked ? SYMBOLS : ''
+            ].filter(Boolean);
+
+            if (selectedTypes.length === 0) {
                 throw new Error('Please select at least one character type');
             }
-            
-            let charset = '';
+
+            const charset = selectedTypes.join('');
             let password = '';
-            
-            // Build character set based on selected options
-            if (useLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-            if (useUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if (useNumbers) charset += '0123456789';
-            if (useSymbols) charset += symbolList;
-            
-            // Generate password ensuring at least one character from each selected type
-            const selectedTypes = [
-                useUppercase ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '',
-                useLowercase ? 'abcdefghijklmnopqrstuvwxyz' : '',
-                useNumbers ? '0123456789' : '',
-                useSymbols ? symbolList : ''
-            ].filter(Boolean);
-            
-            // First, add one character from each selected type
-            selectedTypes.forEach(type => {
-                password += type.charAt(Math.floor(Math.random() * type.length));
+
+            // One character from every selected type, then fill up.
+            selectedTypes.forEach((type) => {
+                password += randomChar(type);
             });
-            
-            // Then fill the rest with random characters from the full charset
             for (let i = password.length; i < length; i++) {
-                password += charset.charAt(Math.floor(Math.random() * charset.length));
+                password += randomChar(charset);
             }
-            
-            // Shuffle the password to mix the required characters
-            password = shuffleString(password);
-            
-            return password;
+
+            return shuffleString(password);
         }
-        
-        // Generate syllable-based password
+
         function generateSyllablePassword() {
-            const length = parseInt(lengthSlider.value);
+            const length = parseInt(lengthSlider.value, 10);
             const useNumbers = numbersCheck.checked;
             const useSymbols = symbolsCheck.checked;
             const useUppercase = uppercaseCheck.checked;
-            
+
             let password = '';
-            
-            // Generate syllables until we reach or exceed the desired length
             while (password.length < length) {
-                const pattern = syllablePatterns[Math.floor(Math.random() * syllablePatterns.length)];
+                const pattern = randomItem(syllablePatterns);
                 let syllable = '';
-                
+
                 for (const char of pattern) {
                     if (char === 'C') {
-                        syllable += consonants.charAt(Math.floor(Math.random() * consonants.length));
+                        syllable += randomChar(consonants);
                     } else if (char === 'V') {
-                        syllable += vowels.charAt(Math.floor(Math.random() * vowels.length));
+                        syllable += randomChar(vowels);
                     }
                 }
-                
-                // Randomly capitalize the syllable
-                if (useUppercase && Math.random() > 0.7) {
+
+                if (useUppercase && randomInt(10) < 3) {
                     syllable = syllable.charAt(0).toUpperCase() + syllable.slice(1);
                 }
-                
+
                 password += syllable;
             }
-            
-            // Trim to exact length
+
             password = password.substring(0, length);
-            
-            // Optionally add numbers or symbols
+
             if (useNumbers || useSymbols) {
-                // Replace some characters with numbers/symbols
-                const numReplacements = Math.floor(length * 0.2); // Replace ~20% of characters
-                let replacements = 0;
-                
-                while (replacements < numReplacements) {
-                    const pos = Math.floor(Math.random() * password.length);
-                    const char = password.charAt(pos);
-                    
-                    // Only replace lowercase letters to avoid breaking syllables
-                    if (/[a-z]/.test(char)) {
-                        let replacement = '';
-                        if (useNumbers && useSymbols) {
-                            replacement = Math.random() > 0.5 
-                                ? Math.floor(Math.random() * 10).toString()
-                                : symbolList.charAt(Math.floor(Math.random() * symbolList.length));
-                        } else if (useNumbers) {
-                            replacement = Math.floor(Math.random() * 10).toString();
-                        } else {
-                            replacement = symbolList.charAt(Math.floor(Math.random() * symbolList.length));
-                        }
-                        
-                        password = password.substring(0, pos) + replacement + password.substring(pos + 1);
-                        replacements++;
-                    }
+                let pool = '';
+                if (useNumbers) pool += DIGITS;
+                if (useSymbols) pool += SYMBOLS;
+
+                // Pick the positions up front from the lowercase letters that are
+                // actually present, so this can never spin looking for a slot.
+                const candidates = [];
+                for (let i = 0; i < password.length; i++) {
+                    if (/[a-z]/.test(password.charAt(i))) candidates.push(i);
                 }
+
+                const wanted = Math.min(Math.floor(length * 0.2), candidates.length);
+                for (let i = candidates.length - 1; i > 0; i--) {
+                    const j = randomInt(i + 1);
+                    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+                }
+
+                const chars = password.split('');
+                for (let i = 0; i < wanted; i++) {
+                    chars[candidates[i]] = randomChar(pool);
+                }
+                password = chars.join('');
             }
-            
+
             return password;
         }
-        
-        // Generate passphrase
-        function generatePassphrase() {
-            const wordCount = parseInt(wordCountSlider.value);
+
+        async function generatePassphrase() {
+            const wordCount = parseInt(wordCountSlider.value, 10);
             const separator = separatorSelect.value;
             const addNumber = addNumberCheck.checked;
-            
-            // Get selected language
+
             let selectedLanguage = 'english';
             for (const radio of languageRadios) {
                 if (radio.checked) {
@@ -504,85 +506,63 @@
                     break;
                 }
             }
-            
-            const words = wordLists[selectedLanguage];
-            let passphrase = '';
-            
-            // Select random words
+
+            const words = await loadWordList(selectedLanguage);
+            const parts = [];
             for (let i = 0; i < wordCount; i++) {
-                const word = words[Math.floor(Math.random() * words.length)];
-                passphrase += (i > 0 ? separator : '') + word;
+                parts.push(randomItem(words));
             }
-            
-            // Add number if requested
+
             if (addNumber) {
-                passphrase += separator + Math.floor(Math.random() * 90 + 10).toString();
+                parts.push(String(randomInt(90) + 10));
             }
-            
-            return passphrase;
+
+            return parts.join(separator);
         }
-        
-        // Copy password to clipboard
+
+        /* ------------------------------------------------------------------
+         * Clipboard
+         * ------------------------------------------------------------------ */
         function copyToClipboard() {
             const password = passwordOutput.textContent;
-            
+
             if (!password || password === 'Generate a password') {
                 showCopyFeedback('Nothing to copy', false);
                 return;
             }
-            
+
+            if (!navigator.clipboard) {
+                showCopyFeedback('Clipboard not available', false);
+                return;
+            }
+
             navigator.clipboard.writeText(password).then(() => {
                 showCopyFeedback('Copied to clipboard', true);
-                
-                // Change icon temporarily to checkmark
-                const copyIcon = copyBtn.querySelector('i');
-                if (copyIcon) {
-                    copyIcon.setAttribute('data-lucide', 'check');
-                    lucide.createIcons();
-                    
-                    // Revert after 2 seconds
-                    setTimeout(() => {
-                        copyIcon.setAttribute('data-lucide', 'copy');
-                        lucide.createIcons();
-                    }, 2000);
-                }
-            }).catch(err => {
+                copyBtn.innerHTML = ICON_CHECK;
+                setTimeout(() => {
+                    copyBtn.innerHTML = ICON_COPY;
+                }, 2000);
+            }).catch((err) => {
                 showCopyFeedback('Failed to copy', false);
-                console.error('Failed to copy password: ', err);
+                console.error('Failed to copy password:', err);
             });
         }
-        
-        // Show copy feedback message
+
         function showCopyFeedback(message, isSuccess) {
             copyFeedback.textContent = message;
             copyFeedback.className = 'text-sm h-5 text-center ' + (isSuccess ? 'text-green-600' : 'text-red-600');
-            
-            // Clear feedback after 2 seconds
+
             setTimeout(() => {
                 copyFeedback.textContent = '';
             }, 2000);
         }
-        
-        // Helper function to shuffle a string
-        function shuffleString(str) {
-            const array = str.split('');
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array.join('');
-        }
-        
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            initEventListeners();
-            
-            // Generate an initial password
-            generatePassword();
-            
-            // Initialize Lucide icons
-            lucide.createIcons();
-        });
+
+        /* ------------------------------------------------------------------
+         * Boot
+         * ------------------------------------------------------------------ */
+        setupServiceWorker();
+        initEventListeners();
+        generatePassword();
     </script>
 </body>
 </html>
