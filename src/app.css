@@ -52,14 +52,29 @@ body {
     cursor: pointer;
 }
 
-/* The SVG carries no width/height, only a viewBox, so it has no intrinsic
-   size - it gets scaled to 20x20 (square, from the 1:1 ratio and the 20px
-   height) and then tiled across the 36px-wide pill, which draws a second,
-   clipped check. Pinning size, position and repeat is what stops that. */
-.toggle-checkbox:checked {
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+/* iOS-style switch: the 36x20 pill carries a white knob as its background
+   image, and checking it slides the knob to the other end.
+   Size, position and repeat all have to be pinned - the SVG has no intrinsic
+   dimensions, only a viewBox, so left to the defaults it would be scaled to
+   the track height and then tiled across the wider track.
+   Longhands only: the `background` shorthand would wipe out the track colour
+   that the bg-gray-300 / checked:bg-blue-500 utilities set. */
+.toggle-checkbox {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='7.5' fill='white' stroke='%23000' stroke-opacity='.12'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: 0.875rem 0.875rem;
+    background-position: left 2px center;
+    background-size: 1rem 1rem;
+    /* transition-colors does not cover background-position, so declare both. */
+    transition: background-color 200ms ease-in-out, background-position 200ms ease-in-out;
+    cursor: pointer;
+}
+
+.toggle-checkbox:checked {
+    background-position: right 2px center;
     border-color: transparent;
+}
+
+.toggle-checkbox:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
 }
