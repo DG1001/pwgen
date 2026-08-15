@@ -21,13 +21,21 @@
 
         <!-- Password Output -->
         <div class="p-5 border-b border-gray-100">
-            <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 mb-2 border border-gray-200">
-                <div class="password-display text-lg font-medium overflow-x-auto whitespace-nowrap" id="password-output">Generate a password</div>
-                <button id="copy-btn" class="text-blue-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 mb-3 border border-gray-200">
+                <div class="password-display text-lg font-medium overflow-x-auto whitespace-nowrap" id="password-output" aria-live="polite">Generate a password</div>
+                <button id="copy-btn" type="button" aria-label="Copy password to clipboard" class="text-blue-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                 </button>
             </div>
-            <div id="copy-feedback" class="text-sm text-green-600 h-5 text-center"></div>
+
+            <!-- Strength estimate -->
+            <div class="flex items-center gap-3 mb-1">
+                <div class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="strength-bar" class="h-full w-0 rounded-full bg-gray-300 transition-all duration-300"></div>
+                </div>
+                <span id="strength-label" class="text-xs font-medium text-gray-500 whitespace-nowrap"></span>
+            </div>
+            <div id="copy-feedback" class="text-sm text-green-600 h-5 text-center" role="status" aria-live="polite"></div>
         </div>
 
         <!-- Generation Options -->
@@ -35,16 +43,16 @@
             <!-- Type Selector -->
             <div class="bg-gray-50 rounded-xl p-1">
                 <div class="grid grid-cols-2 gap-1 mb-1">
-                    <button id="random-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 bg-white shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/></svg> Random
+                    <button id="random-btn" type="button" aria-pressed="true" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 bg-white shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/></svg> Random
                     </button>
-                    <button id="syllable-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/></svg> Syllable
+                    <button id="syllable-btn" type="button" aria-pressed="false" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/></svg> Syllable
                     </button>
                 </div>
                 <div class="grid grid-cols-1">
-                    <button id="passphrase-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg> Passphrase
+                    <button id="passphrase-btn" type="button" aria-pressed="false" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg> Passphrase
                     </button>
                 </div>
             </div>
@@ -54,7 +62,7 @@
                 <!-- Length Slider -->
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-sm font-medium text-gray-700">Password Length</label>
+                        <label for="length-slider" class="text-sm font-medium text-gray-700">Password Length</label>
                         <span class="text-sm font-medium text-gray-900" id="length-value">16</span>
                     </div>
                     <input type="range" id="length-slider" min="6" max="64" value="16" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
@@ -89,16 +97,17 @@
                 <!-- Language -->
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Language</label>
+                    <!-- sr-only (not hidden) keeps the radios reachable by keyboard -->
                     <div class="flex overflow-hidden rounded-lg border border-gray-200">
                         <label class="flex-1">
-                            <input type="radio" name="language" value="english" class="hidden peer" checked>
-                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white transition-colors">
+                            <input type="radio" name="language" value="english" class="sr-only peer" checked>
+                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-inset peer-focus-visible:ring-blue-500 transition-colors cursor-pointer">
                                 English
                             </div>
                         </label>
                         <label class="flex-1">
-                            <input type="radio" name="language" value="german" class="hidden peer">
-                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white transition-colors">
+                            <input type="radio" name="language" value="german" class="sr-only peer">
+                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-inset peer-focus-visible:ring-blue-500 transition-colors cursor-pointer">
                                 German
                             </div>
                         </label>
@@ -108,7 +117,7 @@
                 <!-- Word Count -->
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-sm font-medium text-gray-700">Number of Words</label>
+                        <label for="word-count" class="text-sm font-medium text-gray-700">Number of Words</label>
                         <span class="text-sm font-medium text-gray-900" id="word-count-value">6</span>
                     </div>
                     <input type="range" id="word-count" min="3" max="12" value="6" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
@@ -116,7 +125,7 @@
 
                 <!-- Separator -->
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Word Separator</label>
+                    <label for="separator" class="text-sm font-medium text-gray-700 mb-2 block">Word Separator</label>
                     <select id="separator" class="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="-">Hyphen (-)</option>
                         <option value=" ">Space ( )</option>
@@ -133,18 +142,18 @@
             </div>
 
             <!-- Generate Button -->
-            <button id="generate-btn" class="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 active:scale-95 transform transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Generate Password
+            <button id="generate-btn" type="button" class="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 active:scale-95 transform transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Generate Password
             </button>
         </div>
     </div>
 
     <!-- Update banner (hidden until a new service worker is waiting) -->
-    <div id="update-banner" class="hidden fixed inset-x-0 bottom-0 p-4 flex justify-center">
+    <div id="update-banner" class="hidden fixed inset-x-0 bottom-0 p-4 flex justify-center" role="status" aria-live="polite">
         <div class="bg-gray-900 text-white text-sm rounded-xl shadow-lg px-4 py-3 flex items-center gap-4 max-w-md w-full">
             <span class="flex-1">A new version is available.</span>
-            <button id="update-btn" class="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg font-medium transition-colors">Update</button>
-            <button id="update-dismiss" class="text-gray-400 hover:text-white transition-colors">Later</button>
+            <button id="update-btn" type="button" class="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg font-medium transition-colors">Update</button>
+            <button id="update-dismiss" type="button" class="text-gray-400 hover:text-white transition-colors">Later</button>
         </div>
     </div>
 
@@ -298,10 +307,10 @@
         /* ------------------------------------------------------------------
          * Icons (inline SVG - no runtime icon library, works offline)
          * ------------------------------------------------------------------ */
-        const ICON_REFRESH = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>';
-        const ICON_LOADER = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
-        const ICON_COPY = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
-        const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+        const ICON_REFRESH = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>';
+        const ICON_LOADER = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+        const ICON_COPY = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+        const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>';
 
         /* ------------------------------------------------------------------
          * DOM elements
@@ -309,6 +318,8 @@
         const passwordOutput = document.getElementById('password-output');
         const copyBtn = document.getElementById('copy-btn');
         const copyFeedback = document.getElementById('copy-feedback');
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthLabel = document.getElementById('strength-label');
         const generateBtn = document.getElementById('generate-btn');
         const randomBtn = document.getElementById('random-btn');
         const syllableBtn = document.getElementById('syllable-btn');
@@ -344,7 +355,9 @@
 
             Object.keys(modeButtons).forEach((name) => {
                 const button = modeButtons[name];
-                if (name === mode) {
+                const active = name === mode;
+                button.setAttribute('aria-pressed', String(active));
+                if (active) {
                     button.classList.remove('text-gray-500', 'hover:text-gray-700');
                     button.classList.add('bg-white', 'shadow-sm');
                 } else {
@@ -382,6 +395,7 @@
         async function generatePassword() {
             if (!hasSecureRandom) {
                 passwordOutput.textContent = 'Secure randomness unavailable in this browser';
+                showStrength(null);
                 return;
             }
 
@@ -389,21 +403,23 @@
             generateBtn.innerHTML = ICON_LOADER + ' Generating...';
 
             try {
-                let password;
+                let result;
                 switch (currentGenerationType) {
                     case 'syllable':
-                        password = generateSyllablePassword();
+                        result = generateSyllablePassword();
                         break;
                     case 'passphrase':
-                        password = await generatePassphrase();
+                        result = await generatePassphrase();
                         break;
                     default:
-                        password = generateRandomPassword();
+                        result = generateRandomPassword();
                 }
-                passwordOutput.textContent = password;
+                passwordOutput.textContent = result.password;
+                showStrength(result.entropy);
             } catch (error) {
                 passwordOutput.textContent = error.message;
                 copyFeedback.textContent = '';
+                showStrength(null);
             } finally {
                 generateBtn.disabled = false;
                 generateBtn.innerHTML = ICON_REFRESH + ' Generate Password';
@@ -435,7 +451,10 @@
                 password += randomChar(charset);
             }
 
-            return shuffleString(password);
+            return {
+                password: shuffleString(password),
+                entropy: password.length * Math.log2(charset.length)
+            };
         }
 
         function generateSyllablePassword() {
@@ -443,6 +462,9 @@
             const useNumbers = numbersCheck.checked;
             const useSymbols = symbolsCheck.checked;
             const useUppercase = uppercaseCheck.checked;
+
+            let substitutions = 0;
+            let substitutionPool = 0;
 
             let password = '';
             while (password.length < length) {
@@ -489,9 +511,15 @@
                     chars[candidates[i]] = randomChar(pool);
                 }
                 password = chars.join('');
+
+                substitutions = wanted;
+                substitutionPool = pool.length;
             }
 
-            return password;
+            return {
+                password: password,
+                entropy: syllableEntropy(password.length, useUppercase, substitutions, substitutionPool)
+            };
         }
 
         async function generatePassphrase() {
@@ -517,7 +545,105 @@
                 parts.push(String(randomInt(90) + 10));
             }
 
-            return parts.join(separator);
+            return {
+                password: parts.join(separator),
+                entropy: wordCount * Math.log2(words.length) + (addNumber ? Math.log2(90) : 0)
+            };
+        }
+
+        /* ------------------------------------------------------------------
+         * Strength estimate
+         *
+         * Entropy of the *generation process*, i.e. how much work an attacker
+         * who knows this exact algorithm and all its settings has to do. That
+         * is the honest number - it is not a guess based on the characters
+         * that happened to come out.
+         * ------------------------------------------------------------------ */
+        function log2Choose(n, k) {
+            // log2 of the binomial coefficient, computed additively to avoid
+            // overflow for the larger lengths.
+            let bits = 0;
+            for (let i = 1; i <= k; i++) {
+                bits += Math.log2(n - k + i) - Math.log2(i);
+            }
+            return bits;
+        }
+
+        // Bits contributed per character by the syllable scheme, derived from
+        // the pattern table so it stays correct if the table changes.
+        function syllableBitsPerChar(useUppercase) {
+            const counts = {};
+            syllablePatterns.forEach((pattern) => {
+                counts[pattern] = (counts[pattern] || 0) + 1;
+            });
+
+            const total = syllablePatterns.length;
+            let patternEntropy = 0;
+            let meanLength = 0;
+            let meanCharBits = 0;
+
+            Object.keys(counts).forEach((pattern) => {
+                const probability = counts[pattern] / total;
+                patternEntropy -= probability * Math.log2(probability);
+                meanLength += probability * pattern.length;
+
+                let bits = 0;
+                for (const char of pattern) {
+                    bits += char === 'C' ? Math.log2(consonants.length) : Math.log2(vowels.length);
+                }
+                meanCharBits += probability * bits;
+            });
+
+            let perSyllable = patternEntropy + meanCharBits;
+            if (useUppercase) {
+                // One 30/70 coin flip per syllable.
+                perSyllable += -(0.3 * Math.log2(0.3) + 0.7 * Math.log2(0.7));
+            }
+            return perSyllable / meanLength;
+        }
+
+        function syllableEntropy(length, useUppercase, substitutions, poolSize) {
+            const bitsPerChar = syllableBitsPerChar(useUppercase);
+            let bits = length * bitsPerChar;
+
+            if (substitutions > 0 && poolSize > 0) {
+                // Which positions were replaced, and by what - minus what the
+                // overwritten letters used to contribute.
+                bits += log2Choose(length, substitutions);
+                bits += substitutions * Math.log2(poolSize);
+                bits -= substitutions * bitsPerChar;
+            }
+            return Math.max(0, bits);
+        }
+
+        const STRENGTH_LEVELS = [
+            { min: 80, label: 'Very strong', bar: 'bg-emerald-600', text: 'text-emerald-700' },
+            { min: 60, label: 'Strong', bar: 'bg-green-500', text: 'text-green-600' },
+            { min: 40, label: 'Fair', bar: 'bg-amber-500', text: 'text-amber-600' },
+            { min: 0, label: 'Weak', bar: 'bg-red-500', text: 'text-red-600' }
+        ];
+
+        const BAR_CLASSES = ['bg-emerald-600', 'bg-green-500', 'bg-amber-500', 'bg-red-500', 'bg-gray-300'];
+
+        function showStrength(entropy) {
+            if (entropy === null || !isFinite(entropy)) {
+                strengthBar.style.width = '0%';
+                strengthBar.classList.remove(...BAR_CLASSES);
+                strengthBar.classList.add('bg-gray-300');
+                strengthLabel.textContent = '';
+                strengthLabel.className = 'text-xs font-medium text-gray-500 whitespace-nowrap';
+                return;
+            }
+
+            const bits = Math.round(entropy);
+            const level = STRENGTH_LEVELS.find((entry) => bits >= entry.min);
+
+            strengthBar.style.width = Math.min(100, (bits / 100) * 100) + '%';
+            strengthBar.classList.remove(...BAR_CLASSES);
+            strengthBar.classList.add(level.bar);
+
+            strengthLabel.textContent = level.label + ' · ~' + bits + ' bits';
+            strengthLabel.className = 'text-xs font-medium whitespace-nowrap ' + level.text;
         }
 
         /* ------------------------------------------------------------------
