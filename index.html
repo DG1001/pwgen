@@ -7,53 +7,9 @@
     <meta name="description" content="Generate secure passwords instantly">
     <title>Secure Password Generator</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f5f5f7;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .ios-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.9) 100%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .password-display {
-            font-family: 'SF Mono', 'Menlo', monospace;
-        }
-        .slider-thumb::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        .slider-thumb::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
-            background: white;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
-        .toggle-checkbox:checked {
-            @apply bg-blue-500;
-            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
-            border-color: transparent;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/app.css">
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="ios-card w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -62,55 +18,68 @@
             <h1 class="text-2xl font-semibold">Password Generator</h1>
             <p class="text-blue-100 text-sm mt-1">Create secure passwords instantly</p>
         </div>
-        
+
         <!-- Password Output -->
         <div class="p-5 border-b border-gray-100">
-            <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 mb-2 border border-gray-200">
-                <div class="password-display text-lg font-medium overflow-x-auto whitespace-nowrap" id="password-output">Generate a password</div>
-                <button id="copy-btn" class="text-blue-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100">
-                    <i data-lucide="copy" class="w-5 h-5"></i>
+            <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 mb-3 border border-gray-200">
+                <div class="password-display text-lg font-medium overflow-x-auto whitespace-nowrap" id="password-output" aria-live="polite">Generate a password</div>
+                <button id="copy-btn" type="button" aria-label="Copy password to clipboard" class="text-blue-500 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                 </button>
             </div>
-            <div id="copy-feedback" class="text-sm text-green-600 h-5 text-center"></div>
+
+            <!-- Memory hook: the sentence a mnemonic password was built from -->
+            <div id="mnemonic-hint" class="hidden mb-3 bg-blue-50 border border-blue-100 rounded-xl p-3">
+                <div class="text-xs font-medium text-blue-700 uppercase tracking-wide mb-1">Remember this sentence</div>
+                <div id="mnemonic-sentence" class="text-sm text-blue-900 leading-snug"></div>
+            </div>
+
+            <!-- Strength estimate -->
+            <div class="flex items-center gap-3 mb-1">
+                <div class="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div id="strength-bar" class="h-full w-0 rounded-full bg-gray-300 transition-all duration-300"></div>
+                </div>
+                <span id="strength-label" class="text-xs font-medium text-gray-500 whitespace-nowrap"></span>
+            </div>
+            <div id="copy-feedback" class="text-sm text-green-600 h-5 text-center" role="status" aria-live="polite"></div>
         </div>
-        
+
         <!-- Generation Options -->
         <div class="p-5 space-y-5">
             <!-- Type Selector -->
             <div class="bg-gray-50 rounded-xl p-1">
-                <div class="grid grid-cols-2 gap-1 mb-1">
-                    <button id="random-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 bg-white shadow-sm">
-                        <i data-lucide="dice-5" class="w-4 h-4"></i> Random
+                <div class="grid grid-cols-2 gap-1">
+                    <button id="random-btn" type="button" aria-pressed="true" class="px-3 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 bg-white shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/></svg> Random
                     </button>
-                    <button id="syllable-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
-                        <i data-lucide="speech" class="w-4 h-4"></i> Syllable
+                    <button id="syllable-btn" type="button" aria-pressed="false" class="px-3 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/></svg> Syllable
                     </button>
-                </div>
-                <div class="grid grid-cols-1">
-                    <button id="passphrase-btn" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
-                        <i data-lucide="list" class="w-4 h-4"></i> Passphrase
+                    <button id="passphrase-btn" type="button" aria-pressed="false" class="px-3 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg> Passphrase
+                    </button>
+                    <button id="mnemonic-btn" type="button" aria-pressed="false" class="px-3 py-2 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2"/></svg> Mnemonic
                     </button>
                 </div>
             </div>
-            
+
             <!-- Random Password Settings -->
             <div id="random-settings" class="space-y-4">
-                <!-- Length Slider -->
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-sm font-medium text-gray-700">Password Length</label>
+                        <label for="length-slider" class="text-sm font-medium text-gray-700">Password Length</label>
                         <span class="text-sm font-medium text-gray-900" id="length-value">16</span>
                     </div>
                     <input type="range" id="length-slider" min="6" max="64" value="16" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
                 </div>
-                
-                <!-- Character Types -->
+
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Character Types</label>
                     <div class="grid grid-cols-2 gap-2">
                         <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                             <span class="text-gray-700">A-Z</span>
-                            <input type="checkbox" id="uppercase" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                            <input type="checkbox" id="uppercase" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent" checked>
                         </label>
                         <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                             <span class="text-gray-700">a-z</span>
@@ -127,462 +96,816 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Passphrase Settings (hidden initially) -->
+
+            <!-- Syllable Settings -->
+            <div id="syllable-settings" class="space-y-4 hidden">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="syllable-length" class="text-sm font-medium text-gray-700">Password Length</label>
+                        <span class="text-sm font-medium text-gray-900" id="syllable-length-value">20</span>
+                    </div>
+                    <input type="range" id="syllable-length" min="8" max="64" value="20" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Capitalize syllables</span>
+                        <input type="checkbox" id="syllable-caps" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Leetspeak (a&rarr;4, t&rarr;7)</span>
+                        <input type="checkbox" id="syllable-leet" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent" checked>
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">End with a number</span>
+                        <input type="checkbox" id="syllable-number" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">End with a symbol</span>
+                        <input type="checkbox" id="syllable-symbol" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Passphrase Settings -->
             <div id="passphrase-settings" class="space-y-4 hidden">
-                <!-- Language -->
                 <div>
                     <label class="text-sm font-medium text-gray-700 mb-2 block">Language</label>
+                    <!-- sr-only (not hidden) keeps the radios reachable by keyboard -->
                     <div class="flex overflow-hidden rounded-lg border border-gray-200">
                         <label class="flex-1">
-                            <input type="radio" name="language" value="english" class="hidden peer" checked>
-                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white transition-colors">
+                            <input type="radio" name="language" value="english" class="sr-only peer" checked>
+                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-inset peer-focus-visible:ring-blue-500 transition-colors cursor-pointer">
                                 English
                             </div>
                         </label>
                         <label class="flex-1">
-                            <input type="radio" name="language" value="german" class="hidden peer">
-                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white transition-colors">
+                            <input type="radio" name="language" value="german" class="sr-only peer">
+                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-inset peer-focus-visible:ring-blue-500 transition-colors cursor-pointer">
                                 German
                             </div>
                         </label>
                     </div>
                 </div>
-                
-                <!-- Word Count -->
+
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-sm font-medium text-gray-700">Number of Words</label>
-                        <span class="text-sm font-medium text-gray-900" id="word-count-value">4</span>
+                        <label for="word-count" class="text-sm font-medium text-gray-700">Number of Words</label>
+                        <span class="text-sm font-medium text-gray-900" id="word-count-value">6</span>
                     </div>
-                    <input type="range" id="word-count" min="3" max="10" value="4" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
+                    <input type="range" id="word-count" min="3" max="12" value="6" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
                 </div>
-                
-                <!-- Separator -->
+
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mb-2 block">Word Separator</label>
+                    <label for="separator" class="text-sm font-medium text-gray-700 mb-2 block">Word Separator</label>
                     <select id="separator" class="w-full p-3 rounded-lg border border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="-">Hyphen (-)</option>
                         <option value=" ">Space ( )</option>
                         <option value="_">Underscore (_)</option>
                         <option value=".">Dot (.)</option>
+                        <option value="">None (run together)</option>
                     </select>
                 </div>
-                
-                <!-- Add Number -->
-                <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <span class="text-gray-700">Add random number</span>
-                    <input type="checkbox" id="add-number" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
-                </label>
+
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Capitalize words</span>
+                        <input type="checkbox" id="passphrase-caps" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Leetspeak (a&rarr;4, t&rarr;7)</span>
+                        <input type="checkbox" id="passphrase-leet" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Add random number</span>
+                        <input type="checkbox" id="add-number" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                    </label>
+                </div>
             </div>
-            
+
+            <!-- Mnemonic Settings -->
+            <div id="mnemonic-settings" class="space-y-4 hidden">
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    Builds a random sentence and takes the first letter of every word.
+                    Memorize the sentence, not the password.
+                </p>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mb-2 block">Language</label>
+                    <div class="flex overflow-hidden rounded-lg border border-gray-200">
+                        <label class="flex-1">
+                            <input type="radio" name="mnemonic-language" value="english" class="sr-only peer" checked>
+                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-inset peer-focus-visible:ring-blue-500 transition-colors cursor-pointer">
+                                English
+                            </div>
+                        </label>
+                        <label class="flex-1">
+                            <input type="radio" name="mnemonic-language" value="german" class="sr-only peer">
+                            <div class="p-3 text-center bg-gray-50 peer-checked:bg-blue-500 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-inset peer-focus-visible:ring-blue-500 transition-colors cursor-pointer">
+                                German
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="mnemonic-length" class="text-sm font-medium text-gray-700">Words in Sentence</label>
+                        <span class="text-sm font-medium text-gray-900" id="mnemonic-length-value">10</span>
+                    </div>
+                    <input type="range" id="mnemonic-length" min="6" max="12" value="10" class="slider-thumb w-full h-1 bg-gray-200 rounded-full appearance-none cursor-pointer">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Leetspeak (a&rarr;4, t&rarr;7)</span>
+                        <input type="checkbox" id="mnemonic-leet" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent">
+                    </label>
+                    <label class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <span class="text-gray-700">Add random number</span>
+                        <input type="checkbox" id="mnemonic-number" class="toggle-checkbox h-5 w-9 rounded-full appearance-none bg-gray-300 checked:bg-blue-500 transition-colors duration-200 ease-in-out border border-transparent" checked>
+                    </label>
+                </div>
+            </div>
+
             <!-- Generate Button -->
-            <button id="generate-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-xl transition-colors font-medium flex items-center justify-center gap-2 active:scale-95 transform transition-transform">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Generate Password
+            <button id="generate-btn" type="button" class="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 active:scale-95 transform transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Generate Password
             </button>
         </div>
     </div>
 
+    <!-- Update banner (hidden until a new service worker is waiting) -->
+    <div id="update-banner" class="hidden fixed inset-x-0 bottom-0 p-4 flex justify-center" role="status" aria-live="polite">
+        <div class="bg-gray-900 text-white text-sm rounded-xl shadow-lg px-4 py-3 flex items-center gap-4 max-w-md w-full">
+            <span class="flex-1">A new version is available.</span>
+            <button id="update-btn" type="button" class="bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg font-medium transition-colors">Update</button>
+            <button id="update-dismiss" type="button" class="text-gray-400 hover:text-white transition-colors">Later</button>
+        </div>
+    </div>
+
     <script>
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                        
-                        // Check for updates
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            console.log('Service worker update found!');
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New content is available, show notification to user
-                                    if (confirm('New version available! Click OK to update.')) {
-                                        window.location.reload();
-                                    }
-                                }
-                            });
-                        });
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
+        'use strict';
+
+        /* ------------------------------------------------------------------
+         * Service worker registration + update flow
+         * ------------------------------------------------------------------ */
+        const updateBanner = document.getElementById('update-banner');
+        const updateBtn = document.getElementById('update-btn');
+        const updateDismiss = document.getElementById('update-dismiss');
+
+        function setupServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+
+            // Relative path: keeps the app working under a sub-path such as
+            // https://user.github.io/pwgen/ where '/sw.js' would 404.
+            navigator.serviceWorker.register('sw.js').then((registration) => {
+                let waitingWorker = registration.waiting || null;
+
+                function promptForUpdate(worker) {
+                    waitingWorker = worker;
+                    updateBanner.classList.remove('hidden');
+                }
+
+                // A worker may already be waiting from a previous visit.
+                if (registration.waiting && navigator.serviceWorker.controller) {
+                    promptForUpdate(registration.waiting);
+                }
+
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (!newWorker) return;
+                    newWorker.addEventListener('statechange', () => {
+                        // controller check: on a first-ever install there is
+                        // nothing to update *from*, so stay silent.
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            promptForUpdate(newWorker);
+                        }
                     });
-                    
-                // Handle updates when the page is revisited
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('New service worker controller');
                 });
+
+                updateBtn.addEventListener('click', () => {
+                    updateBanner.classList.add('hidden');
+                    // Without this the new worker stays in 'waiting' forever and
+                    // a plain reload would change nothing.
+                    if (waitingWorker) waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+                });
+
+                updateDismiss.addEventListener('click', () => {
+                    updateBanner.classList.add('hidden');
+                });
+            }).catch((err) => {
+                console.warn('ServiceWorker registration failed:', err);
+            });
+
+            // The new worker took over -> reload once to pick up the new assets.
+            let reloading = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (reloading) return;
+                reloading = true;
+                window.location.reload();
             });
         }
 
-        // Word lists for passphrase generation
-        const wordLists = {
-            english: [
-                'apple', 'banana', 'carrot', 'dog', 'elephant', 'forest', 'garden', 'house', 'island', 'jungle',
-                'kite', 'lion', 'mountain', 'night', 'ocean', 'pencil', 'queen', 'river', 'sun', 'tree',
-                'umbrella', 'violet', 'water', 'xylophone', 'yellow', 'zebra', 'air', 'book', 'cat', 'desk',
-                'earth', 'flower', 'grass', 'hat', 'ice', 'juice', 'key', 'lamp', 'mirror', 'nose',
-                'orange', 'pear', 'quilt', 'rose', 'shoe', 'table', 'unicorn', 'volcano', 'window', 'yacht',
-                'anchor', 'bottle', 'candle', 'dolphin', 'eagle', 'feather', 'globe', 'hammer', 'igloo', 'jacket',
-                'kitten', 'ladder', 'moon', 'nest', 'owl', 'piano', 'quail', 'rocket', 'snail', 'tiger',
-                'urchin', 'violin', 'whale', 'xylophone', 'yogurt', 'acorn', 'butterfly', 'cloud', 'diamond', 'egg',
-                'fire', 'guitar', 'honey', 'iceberg', 'jelly', 'koala', 'lemon', 'mushroom', 'nut', 'octopus',
-                'penguin', 'quokka', 'raccoon', 'star', 'turtle', 'vase', 'watermelon', 'xylophone', 'yarn', 'zeppelin'
-            ],
-            german: [
-                'apfel', 'banane', 'hund', 'elefant', 'wald', 'garten', 'haus', 'insel', 'dschungel', 'drachen',
-                'löwe', 'berg', 'nacht', 'ozean', 'stift', 'königin', 'fluss', 'sonne', 'baum', 'regenschirm',
-                'veilchen', 'wasser', 'xylophon', 'gelb', 'zebra', 'luft', 'buch', 'katze', 'schreibtisch', 'erde',
-                'blume', 'gras', 'hut', 'eis', 'saft', 'schlüssel', 'lampe', 'spiegel', 'nase', 'orange',
-                'birne', 'steppdecke', 'rose', 'schuh', 'tisch', 'einhorn', 'vulkan', 'fenster', 'yacht', 'anker',
-                'flasche', 'kerze', 'delfin', 'adler', 'feder', 'globus', 'hammer', 'iglu', 'jacke', 'kätzchen',
-                'leiter', 'mond', 'nest', 'eule', 'klavier', 'wachtel', 'rakete', 'schnecke', 'tiger', 'seeigel',
-                'geige', 'wal', 'xylophon', 'joghurt', 'eichel', 'schmetterling', 'wolke', 'diamant', 'ei', 'feuer',
-                'gitarre', 'honig', 'eisberg', 'gelee', 'koala', 'zitrone', 'pilz', 'nuss', 'oktopus', 'pinguin',
-                'quokka', 'waschbär', 'stern', 'schildkröte', 'vase', 'wassermelone', 'xylophon', 'garn', 'zeppelin'
-            ]
+        /* ------------------------------------------------------------------
+         * Cryptographically secure randomness
+         *
+         * Math.random() is a non-cryptographic PRNG whose internal state can be
+         * recovered from a handful of outputs - unusable for secrets.
+         * ------------------------------------------------------------------ */
+        const cryptoObj = window.crypto || window.msCrypto;
+        const hasSecureRandom = !!(cryptoObj && typeof cryptoObj.getRandomValues === 'function');
+
+        // Uniform integer in [0, max) via rejection sampling (no modulo bias).
+        function randomInt(max) {
+            if (!Number.isInteger(max) || max < 1 || max > 0x100000000) {
+                throw new RangeError('randomInt: max out of range');
+            }
+            const buf = new Uint32Array(1);
+            // Largest multiple of `max` that fits in a uint32; anything at or
+            // above it would over-represent the low values, so we resample.
+            const limit = Math.floor(0x100000000 / max) * max;
+            let value;
+            do {
+                cryptoObj.getRandomValues(buf);
+                value = buf[0];
+            } while (value >= limit);
+            return value % max;
+        }
+
+        function randomChar(chars) {
+            return chars.charAt(randomInt(chars.length));
+        }
+
+        function randomItem(list) {
+            return list[randomInt(list.length)];
+        }
+
+        // Fisher-Yates with a CSPRNG source.
+        function shuffleString(str) {
+            const array = str.split('');
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = randomInt(i + 1);
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array.join('');
+        }
+
+        /* ------------------------------------------------------------------
+         * Data files
+         * ------------------------------------------------------------------ */
+        const WORDLIST_URLS = {
+            english: 'words/en.txt',
+            german: 'words/de.txt'
+        };
+        const SENTENCE_URLS = {
+            english: 'words/sentence-en.json',
+            german: 'words/sentence-de.json'
+        };
+        const wordListCache = {};
+        const sentenceCache = {};
+
+        // Diceware word lists: 7776 words = 12.92 bits per word.
+        async function loadWordList(language) {
+            if (wordListCache[language]) return wordListCache[language];
+
+            const response = await fetch(WORDLIST_URLS[language]);
+            if (!response.ok) {
+                throw new Error('Could not load the word list');
+            }
+            const words = (await response.text())
+                .split('\n')
+                .map((word) => word.trim())
+                .filter(Boolean);
+
+            if (words.length < 1000) {
+                throw new Error('Word list looks incomplete');
+            }
+            wordListCache[language] = words;
+            return words;
+        }
+
+        // Sentence building blocks, indexed by the initial letter of each word.
+        // The password is made of those initials, so the letter is what has to
+        // be drawn uniformly - drawing words uniformly instead would bias the
+        // password towards letters that happen to start many words.
+        async function loadSentenceData(language) {
+            if (sentenceCache[language]) return sentenceCache[language];
+
+            const response = await fetch(SENTENCE_URLS[language]);
+            if (!response.ok) {
+                throw new Error('Could not load the sentence data');
+            }
+            const data = await response.json();
+
+            const index = {};
+            Object.keys(data.slots).forEach((slot) => {
+                const byLetter = {};
+                data.slots[slot].forEach((word) => {
+                    const letter = word.charAt(0);
+                    if (!byLetter[letter]) byLetter[letter] = [];
+                    byLetter[letter].push(word);
+                });
+                index[slot] = byLetter;
+            });
+
+            const prepared = { templates: data.templates, index: index };
+            sentenceCache[language] = prepared;
+            return prepared;
+        }
+
+        /* ------------------------------------------------------------------
+         * Character pools
+         * ------------------------------------------------------------------ */
+        const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
+        const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const DIGITS = '0123456789';
+        const SYMBOLS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        // Pronounceable syllables: onset + nucleus + coda, each drawn uniformly
+        // from its own table. An empty coda gives an open syllable.
+        const SYLLABLE_ONSETS = [
+            'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'w', 'z',
+            'bl', 'br', 'ch', 'cl', 'cr', 'dr', 'fl', 'fr', 'gl', 'gr', 'kl', 'kr', 'pl', 'pr',
+            'sc', 'sh', 'sk', 'sl', 'sm', 'sn', 'sp', 'st', 'sw', 'th', 'tr', 'tw', 'wh',
+            'shr', 'spl', 'spr', 'str', 'thr'
+        ];
+        // Used when the previous syllable ended in a consonant. Without this,
+        // a coda like 'rd' followed by an onset like 'thr' produces "rdthr" -
+        // five consonants in a row, which defeats the point of the mode. The
+        // empty entry gives a vowel-initial syllable, which only ever follows
+        // a consonant and so never creates a vowel pile-up either.
+        const SYLLABLE_ONSETS_SIMPLE = [
+            '', 'b', 'c', 'd', 'f', 'g', 'j', 'k', 'l', 'm', 'n', 'p', 'r', 's', 't', 'v', 'w', 'z'
+        ];
+        const SYLLABLE_NUCLEI = [
+            'a', 'e', 'i', 'o', 'u',
+            'ai', 'au', 'ay', 'ea', 'ee', 'ei', 'eo', 'ia', 'ie', 'io',
+            'oa', 'oo', 'ou', 'ow', 'oy', 'ue', 'ui'
+        ];
+        const SYLLABLE_CODAS = [
+            '',
+            'b', 'd', 'f', 'g', 'k', 'l', 'm', 'n', 'p', 'r', 's', 't', 'x',
+            'ck', 'ld', 'lk', 'll', 'lm', 'lp', 'lt', 'mp', 'nd', 'ng', 'nk', 'nt',
+            'rd', 'rk', 'rl', 'rm', 'rn', 'rt', 'sh', 'sk', 'sp', 'ss', 'st', 'th'
+        ];
+
+        // Letters that have a digit lookalike. Applied as an independent coin
+        // flip per eligible position, which is what makes it worth entropy at
+        // all - a fixed a->4 mapping an attacker can replay adds exactly zero.
+        const LEET_MAP = {
+            a: '4', b: '8', e: '3', g: '9', i: '1',
+            l: '1', o: '0', s: '5', t: '7', z: '2'
         };
 
-        // Syllable patterns for syllable-based passwords
-        const syllablePatterns = [
-            'CV', 'VC', 'CVC', 'CV', 'VC', 'CVC', 'CV', 'VC'
-        ];
-        
-        // Common consonants and vowels
-        const consonants = 'bcdfghjklmnpqrstvwxyz';
-        const vowels = 'aeiou';
-        
-        // Symbols for password generation
-        const symbolList = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-        
-        // DOM elements
+        function applyLeet(text) {
+            const chars = text.split('');
+            let bits = 0;
+
+            for (let i = 0; i < chars.length; i++) {
+                const replacement = LEET_MAP[chars[i].toLowerCase()];
+                if (!replacement) continue;
+                bits += 1;
+                if (randomInt(2) === 1) chars[i] = replacement;
+            }
+            return { text: chars.join(''), bits: bits };
+        }
+
+        function capitalize(word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+
+        /* ------------------------------------------------------------------
+         * Icons (inline SVG - no runtime icon library, works offline)
+         * ------------------------------------------------------------------ */
+        const ICON_REFRESH = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>';
+        const ICON_LOADER = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
+        const ICON_COPY = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+        const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5"/></svg>';
+
+        /* ------------------------------------------------------------------
+         * DOM elements
+         * ------------------------------------------------------------------ */
         const passwordOutput = document.getElementById('password-output');
         const copyBtn = document.getElementById('copy-btn');
         const copyFeedback = document.getElementById('copy-feedback');
+        const strengthBar = document.getElementById('strength-bar');
+        const strengthLabel = document.getElementById('strength-label');
+        const mnemonicHint = document.getElementById('mnemonic-hint');
+        const mnemonicSentence = document.getElementById('mnemonic-sentence');
         const generateBtn = document.getElementById('generate-btn');
+
         const randomBtn = document.getElementById('random-btn');
         const syllableBtn = document.getElementById('syllable-btn');
         const passphraseBtn = document.getElementById('passphrase-btn');
+        const mnemonicBtn = document.getElementById('mnemonic-btn');
+
         const randomSettings = document.getElementById('random-settings');
+        const syllableSettings = document.getElementById('syllable-settings');
         const passphraseSettings = document.getElementById('passphrase-settings');
-        
-        // Settings elements
+        const mnemonicSettings = document.getElementById('mnemonic-settings');
+
         const lengthSlider = document.getElementById('length-slider');
         const lengthValue = document.getElementById('length-value');
         const uppercaseCheck = document.getElementById('uppercase');
         const lowercaseCheck = document.getElementById('lowercase');
         const numbersCheck = document.getElementById('numbers');
         const symbolsCheck = document.getElementById('symbols');
+
+        const syllableLength = document.getElementById('syllable-length');
+        const syllableLengthValue = document.getElementById('syllable-length-value');
+        const syllableCaps = document.getElementById('syllable-caps');
+        const syllableLeet = document.getElementById('syllable-leet');
+        const syllableNumber = document.getElementById('syllable-number');
+        const syllableSymbol = document.getElementById('syllable-symbol');
+
         const wordCountSlider = document.getElementById('word-count');
         const wordCountValue = document.getElementById('word-count-value');
         const separatorSelect = document.getElementById('separator');
+        const passphraseCaps = document.getElementById('passphrase-caps');
+        const passphraseLeet = document.getElementById('passphrase-leet');
         const addNumberCheck = document.getElementById('add-number');
         const languageRadios = document.querySelectorAll('input[name="language"]');
-        
-        // Current generation type
+
+        const mnemonicLength = document.getElementById('mnemonic-length');
+        const mnemonicLengthValue = document.getElementById('mnemonic-length-value');
+        const mnemonicLeet = document.getElementById('mnemonic-leet');
+        const mnemonicNumber = document.getElementById('mnemonic-number');
+        const mnemonicLanguageRadios = document.querySelectorAll('input[name="mnemonic-language"]');
+
         let currentGenerationType = 'random';
-        
-        // Initialize event listeners
-        function initEventListeners() {
-            // Slider value displays
-            lengthSlider.addEventListener('input', () => {
-                lengthValue.textContent = lengthSlider.value;
-            });
-            
-            wordCountSlider.addEventListener('input', () => {
-                wordCountValue.textContent = wordCountSlider.value;
-            });
-            
-            // Generation type buttons
-            randomBtn.addEventListener('click', () => {
-                currentGenerationType = 'random';
-                randomSettings.classList.remove('hidden');
-                passphraseSettings.classList.add('hidden');
-                randomBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                randomBtn.classList.add('bg-white', 'shadow-sm');
-                syllableBtn.classList.remove('bg-white', 'shadow-sm');
-                syllableBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-                passphraseBtn.classList.remove('bg-white', 'shadow-sm');
-                passphraseBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-            });
-            
-            syllableBtn.addEventListener('click', () => {
-                currentGenerationType = 'syllable';
-                randomSettings.classList.remove('hidden');
-                passphraseSettings.classList.add('hidden');
-                syllableBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                syllableBtn.classList.add('bg-white', 'shadow-sm');
-                randomBtn.classList.remove('bg-white', 'shadow-sm');
-                randomBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-                passphraseBtn.classList.remove('bg-white', 'shadow-sm');
-                passphraseBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-            });
-            
-            passphraseBtn.addEventListener('click', () => {
-                currentGenerationType = 'passphrase';
-                randomSettings.classList.add('hidden');
-                passphraseSettings.classList.remove('hidden');
-                passphraseBtn.classList.remove('text-gray-500', 'hover:text-gray-700');
-                passphraseBtn.classList.add('bg-white', 'shadow-sm');
-                randomBtn.classList.remove('bg-white', 'shadow-sm');
-                randomBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-                syllableBtn.classList.remove('bg-white', 'shadow-sm');
-                syllableBtn.classList.add('text-gray-500', 'hover:text-gray-700');
-            });
-            
-            // Generate button
-            generateBtn.addEventListener('click', generatePassword);
-            
-            // Copy button
-            copyBtn.addEventListener('click', copyToClipboard);
-            
-            // Set initial active button
-            randomBtn.click();
-        }
-        
-        // Generate password based on current settings
-        function generatePassword() {
-            let password = '';
-            
-            // Add loading state to button
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generating...';
-            
-            // Small delay to allow UI to update
-            setTimeout(() => {
-                try {
-                    switch(currentGenerationType) {
-                        case 'random':
-                            password = generateRandomPassword();
-                            break;
-                        case 'syllable':
-                            password = generateSyllablePassword();
-                            break;
-                        case 'passphrase':
-                            password = generatePassphrase();
-                            break;
-                        default:
-                            password = generateRandomPassword();
-                    }
-                    
-                    passwordOutput.textContent = password;
-                } catch (error) {
-                    passwordOutput.textContent = error.message;
-                    copyFeedback.textContent = '';
-                } finally {
-                    // Reset button state
-                    generateBtn.disabled = false;
-                    generateBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4"></i> Generate Password';
+
+        /* ------------------------------------------------------------------
+         * Mode switching
+         * ------------------------------------------------------------------ */
+        const modes = {
+            random: { button: randomBtn, panel: randomSettings },
+            syllable: { button: syllableBtn, panel: syllableSettings },
+            passphrase: { button: passphraseBtn, panel: passphraseSettings },
+            mnemonic: { button: mnemonicBtn, panel: mnemonicSettings }
+        };
+
+        function selectMode(mode) {
+            currentGenerationType = mode;
+
+            Object.keys(modes).forEach((name) => {
+                const entry = modes[name];
+                const active = name === mode;
+
+                entry.button.setAttribute('aria-pressed', String(active));
+                if (active) {
+                    entry.button.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    entry.button.classList.add('bg-white', 'shadow-sm');
+                } else {
+                    entry.button.classList.remove('bg-white', 'shadow-sm');
+                    entry.button.classList.add('text-gray-500', 'hover:text-gray-700');
                 }
-            }, 50);
+                entry.panel.classList.toggle('hidden', !active);
+            });
         }
-        
-        // Generate random password
+
+        function selectedValue(radios) {
+            for (const radio of radios) {
+                if (radio.checked) return radio.value;
+            }
+            return 'english';
+        }
+
+        function initEventListeners() {
+            const sliders = [
+                [lengthSlider, lengthValue],
+                [syllableLength, syllableLengthValue],
+                [wordCountSlider, wordCountValue],
+                [mnemonicLength, mnemonicLengthValue]
+            ];
+            sliders.forEach(([slider, output]) => {
+                slider.addEventListener('input', () => {
+                    output.textContent = slider.value;
+                });
+            });
+
+            Object.keys(modes).forEach((mode) => {
+                modes[mode].button.addEventListener('click', () => selectMode(mode));
+            });
+
+            generateBtn.addEventListener('click', generatePassword);
+            copyBtn.addEventListener('click', copyToClipboard);
+
+            selectMode('random');
+        }
+
+        /* ------------------------------------------------------------------
+         * Generation
+         * ------------------------------------------------------------------ */
+        async function generatePassword() {
+            if (!hasSecureRandom) {
+                passwordOutput.textContent = 'Secure randomness unavailable in this browser';
+                showStrength(null);
+                showSentence(null);
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = ICON_LOADER + ' Generating...';
+
+            try {
+                let result;
+                switch (currentGenerationType) {
+                    case 'syllable':
+                        result = generateSyllablePassword();
+                        break;
+                    case 'passphrase':
+                        result = await generatePassphrase();
+                        break;
+                    case 'mnemonic':
+                        result = await generateMnemonic();
+                        break;
+                    default:
+                        result = generateRandomPassword();
+                }
+                passwordOutput.textContent = result.password;
+                showStrength(result.entropy);
+                showSentence(result.sentence || null);
+            } catch (error) {
+                passwordOutput.textContent = error.message;
+                copyFeedback.textContent = '';
+                showStrength(null);
+                showSentence(null);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = ICON_REFRESH + ' Generate Password';
+            }
+        }
+
         function generateRandomPassword() {
-            const length = parseInt(lengthSlider.value);
-            const useUppercase = uppercaseCheck.checked;
-            const useLowercase = lowercaseCheck.checked;
-            const useNumbers = numbersCheck.checked;
-            const useSymbols = symbolsCheck.checked;
-            
-            // Validate at least one character type is selected
-            if (!useUppercase && !useLowercase && !useNumbers && !useSymbols) {
+            const length = parseInt(lengthSlider.value, 10);
+
+            const selectedTypes = [
+                uppercaseCheck.checked ? UPPERCASE : '',
+                lowercaseCheck.checked ? LOWERCASE : '',
+                numbersCheck.checked ? DIGITS : '',
+                symbolsCheck.checked ? SYMBOLS : ''
+            ].filter(Boolean);
+
+            if (selectedTypes.length === 0) {
                 throw new Error('Please select at least one character type');
             }
-            
-            let charset = '';
+
+            const charset = selectedTypes.join('');
             let password = '';
-            
-            // Build character set based on selected options
-            if (useLowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
-            if (useUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if (useNumbers) charset += '0123456789';
-            if (useSymbols) charset += symbolList;
-            
-            // Generate password ensuring at least one character from each selected type
-            const selectedTypes = [
-                useUppercase ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' : '',
-                useLowercase ? 'abcdefghijklmnopqrstuvwxyz' : '',
-                useNumbers ? '0123456789' : '',
-                useSymbols ? symbolList : ''
-            ].filter(Boolean);
-            
-            // First, add one character from each selected type
-            selectedTypes.forEach(type => {
-                password += type.charAt(Math.floor(Math.random() * type.length));
+
+            // One character from every selected type, then fill up.
+            selectedTypes.forEach((type) => {
+                password += randomChar(type);
             });
-            
-            // Then fill the rest with random characters from the full charset
             for (let i = password.length; i < length; i++) {
-                password += charset.charAt(Math.floor(Math.random() * charset.length));
+                password += randomChar(charset);
             }
-            
-            // Shuffle the password to mix the required characters
-            password = shuffleString(password);
-            
-            return password;
+
+            return {
+                password: shuffleString(password),
+                entropy: password.length * Math.log2(charset.length)
+            };
         }
-        
-        // Generate syllable-based password
+
         function generateSyllablePassword() {
-            const length = parseInt(lengthSlider.value);
-            const useNumbers = numbersCheck.checked;
-            const useSymbols = symbolsCheck.checked;
-            const useUppercase = uppercaseCheck.checked;
-            
-            let password = '';
-            
-            // Generate syllables until we reach or exceed the desired length
-            while (password.length < length) {
-                const pattern = syllablePatterns[Math.floor(Math.random() * syllablePatterns.length)];
-                let syllable = '';
-                
-                for (const char of pattern) {
-                    if (char === 'C') {
-                        syllable += consonants.charAt(Math.floor(Math.random() * consonants.length));
-                    } else if (char === 'V') {
-                        syllable += vowels.charAt(Math.floor(Math.random() * vowels.length));
-                    }
-                }
-                
-                // Randomly capitalize the syllable
-                if (useUppercase && Math.random() > 0.7) {
-                    syllable = syllable.charAt(0).toUpperCase() + syllable.slice(1);
-                }
-                
-                password += syllable;
+            const total = parseInt(syllableLength.value, 10);
+            const useCaps = syllableCaps.checked;
+            const useLeet = syllableLeet.checked;
+            const useNumber = syllableNumber.checked;
+            const useSymbol = syllableSymbol.checked;
+
+            // The trailing number/symbol count towards the requested length,
+            // so the slider keeps meaning what it says.
+            const suffixLength = (useNumber ? 2 : 0) + (useSymbol ? 1 : 0);
+            const target = Math.max(4, total - suffixLength);
+
+            const syllables = [];
+            let built = 0;
+            let previousCoda = '';
+
+            while (built < target) {
+                // The onset table depends on how the previous syllable ended,
+                // so the bit count is per syllable rather than a constant.
+                const onsets = previousCoda ? SYLLABLE_ONSETS_SIMPLE : SYLLABLE_ONSETS;
+                const onset = randomItem(onsets);
+                const nucleus = randomItem(SYLLABLE_NUCLEI);
+                const coda = randomItem(SYLLABLE_CODAS);
+
+                syllables.push({
+                    text: onset + nucleus + coda,
+                    bits: Math.log2(onsets.length)
+                        + Math.log2(SYLLABLE_NUCLEI.length)
+                        + Math.log2(SYLLABLE_CODAS.length)
+                });
+                built += onset.length + nucleus.length + coda.length;
+                previousCoda = coda;
             }
-            
-            // Trim to exact length
-            password = password.substring(0, length);
-            
-            // Optionally add numbers or symbols
-            if (useNumbers || useSymbols) {
-                // Replace some characters with numbers/symbols
-                const numReplacements = Math.floor(length * 0.2); // Replace ~20% of characters
-                let replacements = 0;
-                
-                while (replacements < numReplacements) {
-                    const pos = Math.floor(Math.random() * password.length);
-                    const char = password.charAt(pos);
-                    
-                    // Only replace lowercase letters to avoid breaking syllables
-                    if (/[a-z]/.test(char)) {
-                        let replacement = '';
-                        if (useNumbers && useSymbols) {
-                            replacement = Math.random() > 0.5 
-                                ? Math.floor(Math.random() * 10).toString()
-                                : symbolList.charAt(Math.floor(Math.random() * symbolList.length));
-                        } else if (useNumbers) {
-                            replacement = Math.floor(Math.random() * 10).toString();
-                        } else {
-                            replacement = symbolList.charAt(Math.floor(Math.random() * symbolList.length));
-                        }
-                        
-                        password = password.substring(0, pos) + replacement + password.substring(pos + 1);
-                        replacements++;
-                    }
+
+            let text = '';
+            let entropy = 0;
+            for (const syllable of syllables) {
+                const remaining = target - text.length;
+                if (remaining <= 0) break;
+
+                const kept = syllable.text.slice(0, remaining);
+                // A syllable cut short only contributed part of its choices.
+                entropy += syllable.bits * (kept.length / syllable.text.length);
+
+                if (useCaps) {
+                    // One fair coin per syllable, so this is worth a full bit
+                    // whichever way it lands.
+                    entropy += 1;
+                    text += randomInt(2) === 1 ? capitalize(kept) : kept;
+                } else {
+                    text += kept;
                 }
             }
-            
-            return password;
+
+            if (useLeet) {
+                const leeted = applyLeet(text);
+                text = leeted.text;
+                entropy += leeted.bits;
+            }
+
+            if (useNumber) {
+                text += String(randomInt(90) + 10);
+                entropy += Math.log2(90);
+            }
+            if (useSymbol) {
+                text += randomChar(SYMBOLS);
+                entropy += Math.log2(SYMBOLS.length);
+            }
+
+            return { password: text, entropy: entropy };
         }
-        
-        // Generate passphrase
-        function generatePassphrase() {
-            const wordCount = parseInt(wordCountSlider.value);
+
+        async function generatePassphrase() {
+            const wordCount = parseInt(wordCountSlider.value, 10);
             const separator = separatorSelect.value;
+            const useCaps = passphraseCaps.checked;
+            const useLeet = passphraseLeet.checked;
             const addNumber = addNumberCheck.checked;
-            
-            // Get selected language
-            let selectedLanguage = 'english';
-            for (const radio of languageRadios) {
-                if (radio.checked) {
-                    selectedLanguage = radio.value;
-                    break;
-                }
-            }
-            
-            const words = wordLists[selectedLanguage];
-            let passphrase = '';
-            
-            // Select random words
+
+            const words = await loadWordList(selectedValue(languageRadios));
+            const parts = [];
             for (let i = 0; i < wordCount; i++) {
-                const word = words[Math.floor(Math.random() * words.length)];
-                passphrase += (i > 0 ? separator : '') + word;
+                const word = randomItem(words);
+                parts.push(useCaps ? capitalize(word) : word);
             }
-            
-            // Add number if requested
+
+            // Capitalising is deterministic, so it adds no entropy - it is
+            // there for readability and for sites that demand a capital.
+            let entropy = wordCount * Math.log2(words.length);
+            let password = parts.join(separator);
+
+            if (useLeet) {
+                const leeted = applyLeet(password);
+                password = leeted.text;
+                entropy += leeted.bits;
+            }
+
             if (addNumber) {
-                passphrase += separator + Math.floor(Math.random() * 90 + 10).toString();
+                password += separator + String(randomInt(90) + 10);
+                entropy += Math.log2(90);
             }
-            
-            return passphrase;
+
+            return { password: password, entropy: entropy };
         }
-        
-        // Copy password to clipboard
+
+        async function generateMnemonic() {
+            const wordCount = parseInt(mnemonicLength.value, 10);
+            const useLeet = mnemonicLeet.checked;
+            const addNumber = mnemonicNumber.checked;
+
+            const data = await loadSentenceData(selectedValue(mnemonicLanguageRadios));
+            const template = data.templates[String(wordCount)];
+            if (!template) {
+                throw new Error('No sentence template for that length');
+            }
+
+            const words = [];
+            let entropy = 0;
+
+            for (const slot of template) {
+                const byLetter = data.index[slot];
+                const letters = Object.keys(byLetter);
+                // Uniform over initials, then over the words behind that
+                // initial - the initial is what ends up in the password.
+                const letter = randomItem(letters);
+                entropy += Math.log2(letters.length);
+                words.push(randomItem(byLetter[letter]));
+            }
+
+            words[0] = capitalize(words[0]);
+            const sentence = words.join(' ') + '.';
+            let password = words.map((word) => word.charAt(0)).join('');
+
+            if (useLeet) {
+                const leeted = applyLeet(password);
+                password = leeted.text;
+                entropy += leeted.bits;
+            }
+
+            if (addNumber) {
+                password += String(randomInt(90) + 10);
+                entropy += Math.log2(90);
+            }
+
+            return { password: password, entropy: entropy, sentence: sentence };
+        }
+
+        /* ------------------------------------------------------------------
+         * Strength estimate
+         *
+         * Entropy of the *generation process*, i.e. how much work an attacker
+         * who knows this exact algorithm and all its settings has to do. That
+         * is the honest number - it is not a guess based on the characters
+         * that happened to come out.
+         * ------------------------------------------------------------------ */
+        const STRENGTH_LEVELS = [
+            { min: 80, label: 'Very strong', bar: 'bg-emerald-600', text: 'text-emerald-700' },
+            { min: 60, label: 'Strong', bar: 'bg-green-500', text: 'text-green-600' },
+            { min: 40, label: 'Fair', bar: 'bg-amber-500', text: 'text-amber-600' },
+            { min: 0, label: 'Weak', bar: 'bg-red-500', text: 'text-red-600' }
+        ];
+
+        const BAR_CLASSES = ['bg-emerald-600', 'bg-green-500', 'bg-amber-500', 'bg-red-500', 'bg-gray-300'];
+
+        function showStrength(entropy) {
+            if (entropy === null || !isFinite(entropy)) {
+                strengthBar.style.width = '0%';
+                strengthBar.classList.remove(...BAR_CLASSES);
+                strengthBar.classList.add('bg-gray-300');
+                strengthLabel.textContent = '';
+                strengthLabel.className = 'text-xs font-medium text-gray-500 whitespace-nowrap';
+                return;
+            }
+
+            const bits = Math.round(entropy);
+            const level = STRENGTH_LEVELS.find((entry) => bits >= entry.min);
+
+            strengthBar.style.width = Math.min(100, (bits / 100) * 100) + '%';
+            strengthBar.classList.remove(...BAR_CLASSES);
+            strengthBar.classList.add(level.bar);
+
+            strengthLabel.textContent = level.label + ' · ~' + bits + ' bits';
+            strengthLabel.className = 'text-xs font-medium whitespace-nowrap ' + level.text;
+        }
+
+        function showSentence(sentence) {
+            if (!sentence) {
+                mnemonicHint.classList.add('hidden');
+                mnemonicSentence.textContent = '';
+                return;
+            }
+            mnemonicSentence.textContent = sentence;
+            mnemonicHint.classList.remove('hidden');
+        }
+
+        /* ------------------------------------------------------------------
+         * Clipboard
+         * ------------------------------------------------------------------ */
         function copyToClipboard() {
             const password = passwordOutput.textContent;
-            
+
             if (!password || password === 'Generate a password') {
                 showCopyFeedback('Nothing to copy', false);
                 return;
             }
-            
+
+            if (!navigator.clipboard) {
+                showCopyFeedback('Clipboard not available', false);
+                return;
+            }
+
             navigator.clipboard.writeText(password).then(() => {
                 showCopyFeedback('Copied to clipboard', true);
-                
-                // Change icon temporarily to checkmark
-                const copyIcon = copyBtn.querySelector('i');
-                if (copyIcon) {
-                    copyIcon.setAttribute('data-lucide', 'check');
-                    lucide.createIcons();
-                    
-                    // Revert after 2 seconds
-                    setTimeout(() => {
-                        copyIcon.setAttribute('data-lucide', 'copy');
-                        lucide.createIcons();
-                    }, 2000);
-                }
-            }).catch(err => {
+                copyBtn.innerHTML = ICON_CHECK;
+                setTimeout(() => {
+                    copyBtn.innerHTML = ICON_COPY;
+                }, 2000);
+            }).catch((err) => {
                 showCopyFeedback('Failed to copy', false);
-                console.error('Failed to copy password: ', err);
+                console.error('Failed to copy password:', err);
             });
         }
-        
-        // Show copy feedback message
+
         function showCopyFeedback(message, isSuccess) {
             copyFeedback.textContent = message;
             copyFeedback.className = 'text-sm h-5 text-center ' + (isSuccess ? 'text-green-600' : 'text-red-600');
-            
-            // Clear feedback after 2 seconds
+
             setTimeout(() => {
                 copyFeedback.textContent = '';
             }, 2000);
         }
-        
-        // Helper function to shuffle a string
-        function shuffleString(str) {
-            const array = str.split('');
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array.join('');
-        }
-        
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            initEventListeners();
-            
-            // Generate an initial password
-            generatePassword();
-            
-            // Initialize Lucide icons
-            lucide.createIcons();
-        });
+
+        /* ------------------------------------------------------------------
+         * Boot
+         * ------------------------------------------------------------------ */
+        setupServiceWorker();
+        initEventListeners();
+        generatePassword();
     </script>
 </body>
 </html>
