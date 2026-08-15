@@ -52,7 +52,14 @@ body {
     cursor: pointer;
 }
 
+/* The SVG carries no width/height, only a viewBox, so it has no intrinsic
+   size - it gets scaled to 20x20 (square, from the 1:1 ratio and the 20px
+   height) and then tiled across the 36px-wide pill, which draws a second,
+   clipped check. Pinning size, position and repeat is what stops that. */
 .toggle-checkbox:checked {
     background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.875rem 0.875rem;
     border-color: transparent;
 }
