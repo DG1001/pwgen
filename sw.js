@@ -1,4 +1,4 @@
-const CACHE_NAME = 'password-generator-v3';
+const CACHE_NAME = 'password-generator-v4';
 
 // Relative to the service worker's own URL, so the app also works when it is
 // served from a sub-path (e.g. https://user.github.io/pwgen/).
@@ -10,6 +10,8 @@ const ASSETS = [
   './assets/fonts/inter-latin.woff2',
   './words/en.txt',
   './words/de.txt',
+  './words/sentence-en.json',
+  './words/sentence-de.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable.png'

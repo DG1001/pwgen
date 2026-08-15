@@ -6,17 +6,20 @@ A modern, responsive web application for generating secure passwords and passphr
 
 ## Features
 
-- **Three Generation Modes**:
+- **Four Generation Modes**:
   - Random: Fully random characters with customizable character sets
-  - Syllable: Pronounceable passwords using syllable patterns
-  - Passphrase: Memorable word combinations from a 7776-word Diceware list
+  - Syllable: Pronounceable passwords built from onset/nucleus/coda syllables
+  - Passphrase: Word combinations from a 7776-word Diceware list
+  - Mnemonic: A random sentence, with the password made of its initials
 
 - **Customization Options**:
   - Adjustable password length (6-64 characters)
   - Toggle character types (uppercase, lowercase, numbers, symbols)
-  - Multiple languages for passphrases (English, German)
-  - Word count (3-12) and separator options for passphrases
-  - Option to add a random number to passphrases
+  - English and German for passphrases and mnemonic sentences
+  - Word count (3-12) and separator options for passphrases, including
+    "run together" for CamelCase-style passwords
+  - Optional capitalisation, leetspeak, trailing number and trailing symbol,
+    depending on the mode
 
 - **Security**:
   - All randomness comes from `crypto.getRandomValues()`
@@ -37,6 +40,13 @@ output looks. Every choice - each character, each word, each capitalisation -
 is drawn from `crypto.getRandomValues()` using rejection sampling, so all
 outcomes are equally likely.
 
+Mnemonic mode draws the *initial letter* uniformly first and only then a word
+starting with it. Drawing words uniformly instead would skew the password
+towards letters that happen to begin many words, which is a smaller keyspace
+than it looks. The sentences are generated, not quoted: a password built from
+a famous saying is only as strong as the list of sayings it came from, which
+would be around 7 bits for any list small enough to ship.
+
 The strength bar shows the entropy of that process: the work required by an
 attacker who knows this exact algorithm and every setting you picked. Rough
 guide: below 40 bits is weak, 60-80 bits is solid for most accounts, and 80+
@@ -47,18 +57,34 @@ bits is appropriate for a password manager's master password.
 | Random, 16 chars, all four character types | ~103 bits |
 | Random, 16 chars, lowercase only | ~75 bits |
 | Passphrase, 6 words | ~78 bits |
+| Syllable, 20 chars, capitalised + leetspeak | ~80 bits |
+| Syllable, 20 chars, plain | ~60 bits |
+| Mnemonic, 12 words + number | ~54 bits |
 | Passphrase, 4 words | ~52 bits |
 | Random, 8 chars, all four character types | ~52 bits |
+| Mnemonic, 6 words | ~24 bits |
 
-Two caveats worth knowing:
+Things worth knowing about the individual options:
 
-- **Syllable mode trades strength for pronounceability.** Its estimate is a
-  model of the generator (pattern mix, capitalisation, substitutions), not an
-  exact count, and it does not account for the small amount of structure that
-  makes the output pronounceable in the first place. Treat it as approximate
-  and slightly optimistic.
-- **Adding a number to a passphrase adds only ~6.5 bits.** Adding one more
-  word adds ~12.9 bits, and is easier to remember.
+- **Leetspeak is an independent coin flip per eligible letter**, not a fixed
+  `a`&rarr;`4` table. That distinction is the whole point: a mapping an
+  attacker can simply replay adds exactly zero bits, whereas a coin flip per
+  position adds one bit each - typically 15-25 bits on a passphrase. The
+  password stays readable because you still recognise the underlying word.
+- **Capitalising passphrase words adds no entropy at all.** It is there for
+  readability and for sites that insist on a capital letter. The strength
+  figure correctly does not move when you enable it.
+- **Syllable mode trades density for pronounceability.** Structured syllables
+  carry roughly 3 bits per character where fully random ones carry 6.5, so a
+  pronounceable password needs to be longer to match. Its estimate is also
+  slightly approximate, because a syllable cut off by the length limit is
+  counted proportionally.
+- **Mnemonic mode is the weakest per character**, because each character is
+  one word's initial and there are only ~25 usable initials. Its value is that
+  you can actually remember a 12-character password. Do not use it for a
+  password manager's master password; use a passphrase for that.
+- **Adding a number adds only ~6.5 bits.** On a passphrase, adding one more
+  word adds ~12.9 bits and is easier to remember.
 
 ## Technologies Used
 
@@ -131,6 +157,10 @@ without it, rather than silently falling back to a weaker source of randomness.
   [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/).
 - German word list: [dys2p/wordlists-de](https://github.com/dys2p/wordlists-de)
   (`de-7776-v1-diceware`), multi-licensed under Unlicense, CC0 and BSD-3.
+- Mnemonic sentence vocabulary (`words/sentence-*.json`) is part of this
+  project and licensed with it. Each slot covers 23-25 distinct initial
+  letters; that count is what determines the entropy per word, so adding
+  words under existing letters changes variety but not strength.
 
 ## License
 
